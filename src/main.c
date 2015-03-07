@@ -42,6 +42,11 @@ static long double f_derivative(long double x)
     return -expl(-x / 5.0L) / -5.0L - cosl(x);
 }
 
+static long double f_secondderivative(long double x)
+{
+    return -expl(-x / 5.0L) / 25.0L + sinl(x);
+}
+
 /* The function we are interested in for this project (4) */
 static long double g(long double x)
 {
@@ -86,6 +91,19 @@ struct function const study_function_derivatives[] = {
     },
 };
 
+struct function const study_function_secondderivatives[] = {
+    {
+      NULL,
+      NULL,
+      NULL
+    },
+    {
+        "(e**(-x/5)/sin(x))''",
+        (long double(*)(long double, void const*))f_secondderivative,
+        NULL
+    },
+};
+
 struct function const interpolation_function = {
     "1/(1+x**2)",
     (long double(*)(long double, void const*))h,
@@ -125,7 +143,7 @@ int main(int argc, char** argv)
     // TODO: convergence rate. Write utility function to report result
     report_result(&newtons_result_3);
 
-    struct result const altered_newtons_result_3 = altered_newtons_method(&study_functions[1], &study_function_derivatives[1], 2.0L, 256, TOLERANCE_3);
+    struct result const altered_newtons_result_3 = altered_newtons_method(&study_functions[1], &study_function_derivatives[1], &study_function_secondderivatives[1], 2.0L, 256, TOLERANCE_3);
     printf("Altered Newton's Method (part 3): %s\n", study_functions[1].name);
     // TODO: convergence rate. Write utility function to report result
     report_result(&altered_newtons_result_3);

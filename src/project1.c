@@ -95,12 +95,14 @@ struct result newtons_method(struct function const* function, struct function co
     return result;
 }
 
-// TODO: use actual Newton's altered method
-struct result altered_newtons_method(struct function const* function, struct function const* derivative, long double x0, unsigned long max_iterations, long double tolerance) {
+struct result altered_newtons_method(struct function const* const function, struct function const* const derivative, struct function const* const secondderivative, long double x0,  unsigned long const max_iterations, long double const tolerance) {
     struct result result;
-
+    double long temp_f, temp_fd, temp_fdd;
     for(result.iterations = 0L; result.iterations != max_iterations; result.iterations++) {
-        result.value = x0 - function->f(x0, function->arg) / derivative->f(x0, derivative->arg);
+	temp_f = function->f(x0, function->arg);
+	temp_fd = derivative->f(x0, function->arg);
+	temp_fdd = secondderivative->f(x0, function->arg);
+        result.value = x0 - (temp_f*temp_fd)/(temp_fd*temp_fd - temp_f*temp_fdd);
         if((result.error = fabsl((result.value - x0) / result.value)) < tolerance) {
             break;
         }

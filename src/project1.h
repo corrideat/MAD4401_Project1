@@ -24,7 +24,7 @@
 struct result bisection_method(struct function const* function, long double x0, long double x1, long double tolerance);
 
 struct result newtons_method(struct function const* function, struct function const* derivative, long double x0, unsigned long max_iterations, long double tolerance);
-struct result altered_newtons_method(struct function const* function, struct function const* derivative, long double x0, unsigned long max_iterations, long double tolerance);
+struct result altered_newtons_method(struct function const* function, struct function const* derivative, struct function const* secondderivative, long double x0, unsigned long max_iterations, long double tolerance);
 struct interpolation const* lagrange_interpolation(struct function const* function, long double x0, long double x1, unsigned long order);
 struct interpolation const* piecewise_linear_interpolation(struct function const* function, long double x0, long double x1, unsigned long order);
 struct interpolation const* raised_cosine_interpolation(struct function const* function, long double x0, long double x1, unsigned long order);
