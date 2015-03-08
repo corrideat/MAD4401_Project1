@@ -296,7 +296,7 @@ struct interpolation const* least_squares_interpolation(struct function const *c
         printf("error\n");
         goto error2;
     }
-    V_set_row(V_T, 1L, 1.0L);
+    matrix_set_row(V_T, 1L, 1.0L);
     long double * const xs = malloc(sizeof(long double)*sampled_function->n_samples);
     if(xs == NULL) {
         printf("error\n");
@@ -306,29 +306,29 @@ struct interpolation const* least_squares_interpolation(struct function const *c
         xs[i] = sampled_function->start + ((long double)i) * sampled_function->sampling_interval;
     }
     for(size_t i = 2; i <= (order + 1); i++) {
-        V_set_row_vector_power(V_T, i, xs, (long double)i - 1.0L);
+        matrix_set_row_vector_power(V_T, i, xs, (long double)i - 1.0L);
     }
     struct matrix * const V = transpose_matrix(V_T);
     if(V == NULL) {
         printf("error\n");
         goto error4;
     }
-    struct matrix * const V_T_by_V_PR = V_multiply(V_T, V);
+    struct matrix * const V_T_by_V_PR = matrix_multiply(V_T, V);
     if(V_T_by_V_PR == NULL) {
         printf("error\n");
         goto error5;
     }
-    struct matrix * const V_T_by_V_PR_INV = V_INV(V_T_by_V_PR);
+    struct matrix * const V_T_by_V_PR_INV = matrix_inverse(V_T_by_V_PR);
     if(V_T_by_V_PR_INV == NULL) {
         printf("error\n");
         goto error6;
     }
-    struct matrix * const V_T_by_V_PR_INV_by_V_T = V_multiply(V_T_by_V_PR_INV, V_T);
+    struct matrix * const V_T_by_V_PR_INV_by_V_T = matrix_multiply(V_T_by_V_PR_INV, V_T);
     if(V_T_by_V_PR_INV_by_V_T == NULL) {
         printf("error\n");
         goto error7;
     }
-    struct matrix *const V_T_by_V_PR_INV_by_V_T_by_f_T = V_multiply(V_T_by_V_PR_INV_by_V_T, &f_T);
+    struct matrix *const V_T_by_V_PR_INV_by_V_T_by_f_T = matrix_multiply(V_T_by_V_PR_INV_by_V_T, &f_T);
     if(V_T_by_V_PR_INV_by_V_T_by_f_T == NULL || V_T_by_V_PR_INV_by_V_T_by_f_T->cols != 1L) {
         printf("error\n");
         goto error8;
