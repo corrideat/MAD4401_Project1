@@ -42,6 +42,7 @@ struct result {
     long double value;
     long double error;
     unsigned long iterations;
+    unsigned char convergence_rate;
 };
 
 struct interpolation {

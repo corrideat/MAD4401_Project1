@@ -79,10 +79,12 @@ struct result bisection_method(struct function const* function, long double x0, 
             result.value = (x0 + x1) / 2.0L;
         }
     }
+    result.convergence_rate = 1;
     return result;
 }
 
 struct result newtons_method(struct function const* function, struct function const* derivative, long double x0, unsigned long max_iterations, long double tolerance) {
+    long double errors[] = {0.0L, 0.0L, 0.0L};
     struct result result;
 
     for(result.iterations = 0L; result.iterations != max_iterations; result.iterations++) {
@@ -90,13 +92,18 @@ struct result newtons_method(struct function const* function, struct function co
         if((result.error = fabsl((result.value - x0) / result.value)) < tolerance) {
             break;
         }
+	errors[0] = errors[1];
+	errors[1] = errors[2];
+	errors[2] = result.error;
         x0 = result.value;
     }
     result.error /= 2.0L;
+    result.convergence_rate = (result.iterations < 3)?NAN:roundl(logl(errors[2]/errors[1])/logl(errors[1]/errors[0]));
     return result;
 }
 
 struct result altered_newtons_method(struct function const* const function, struct function const* const derivative, struct function const* const secondderivative, long double x0,  unsigned long const max_iterations, long double const tolerance) {
+    long double errors[] = {0.0L, 0.0L, 0.0L};
     struct result result;
     double long temp_f, temp_fd, temp_fdd;
     for(result.iterations = 0L; result.iterations != max_iterations; result.iterations++) {
@@ -107,9 +114,13 @@ struct result altered_newtons_method(struct function const* const function, stru
         if((result.error = fabsl((result.value - x0) / result.value)) < tolerance) {
             break;
         }
+	errors[0] = errors[1];
+	errors[1] = errors[2];
+	errors[2] = result.error;
         x0 = result.value;
     }
     result.error /= 2.0L;
+    result.convergence_rate = (result.iterations < 3)?NAN:roundl(logl(errors[2]/errors[1])/logl(errors[1]/errors[0]));
     return result;
 }
 
@@ -404,4 +415,31 @@ struct result square_root_calculator(double long const k) {
     } else {
         return result;
     }
+}
+
+struct result adjusting_newtons_method(struct function const* function, struct function const* derivative, long double x0, unsigned long max_iterations, long double tolerance) {
+    struct result result;
+    char adjusting = 1;
+    long double errors[] = {0.0L, 0.0L, 0.0L};
+    long double m = 1.0L;
+    for(result.iterations = 0L; result.iterations != max_iterations; result.iterations++) {
+        result.value = x0 - m * function->f(x0, function->arg) / derivative->f(x0, derivative->arg);
+        if((result.error = fabsl((result.value - x0) / result.value)) < tolerance) {
+            break;
+        }
+	errors[0] = errors[1];
+	errors[1] = errors[2];
+	errors[2] = result.error;
+	if (adjusting && result.iterations > 2 && (result.iterations % 3 == 0)) {
+	  if (roundl(logl(errors[2]/errors[1])/logl(errors[1]/errors[0])) < 2.0L) {
+	    m++;
+	  } else {
+	    adjusting = 0;
+	  }
+	}
+        x0 = result.value;
+    }
+    result.error /= 2.0L;
+    result.convergence_rate = (result.iterations < 3)?NAN:roundl(logl(errors[2]/errors[1])/logl(errors[1]/errors[0]));
+    return result;
 }

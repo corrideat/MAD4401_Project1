@@ -30,3 +30,4 @@ struct interpolation const* piecewise_linear_interpolation(struct function const
 struct interpolation const* raised_cosine_interpolation(struct function const* function, long double x0, long double x1, unsigned long order);
 struct interpolation const* least_squares_interpolation(struct function const* function, long double x0, long double x1, unsigned long order);
 struct result square_root_calculator(double long const k);
+struct result adjusting_newtons_method(struct function const* function, struct function const* derivative, long double x0, unsigned long max_iterations, long double tolerance);

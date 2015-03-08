@@ -30,6 +30,7 @@
 
 #define TOLERANCE 1E-7L
 #define TOLERANCE_3 1.0L/35184372088832.0L
+#define EXPORT_POINTS 524288L
 
 /* The function we are interested in for this project (1-3) */
 static long double f(long double x)
@@ -55,15 +56,35 @@ static long double g(long double x)
 
 static long double g_derivative(long double x)
 {
-    return powl(x - 3.0L, 3.0L) * (4.0 * sinl(x) + (x - 3.0L) * cosl(x));
+    return powl(x - 3.0L, 3.0L) * (4.0L * sinl(x) + (x - 3.0L) * cosl(x));
 }
 
-/* The function we are interested in getting the Lagrange polynomials for */
+/* The function we are interested in for this project (bounus) */
+static long double f_bonus(long double x)
+{
+    return powl(x - 4.0L, 2.0L) * sinl(x);
+}
+
+static long double f_bonus_derivative(long double x)
+{
+    return (x - 4.0L) * (2.0L * sinl(x) + (x - 4.0L) * cosl(x));
+}
+
+static long double g_bonus(long double x)
+{
+    return powl(x - 4.0L, 3.0L) * sinl(x);
+}
+
+static long double g_bonus_derivative(long double x)
+{
+    return powl(x - 4.0L, 2.0L) * (3.0L * sinl(x) + (x - 4.0L) * cosl(x));
+}
+
+/* The function we are interested in interpolating */
 static long double h(long double x)
 {
     return 1.0L / (powl(x, 2.0L) + 1.0L);
 }
-
 
 struct function const study_functions[] = {
     {
@@ -104,6 +125,32 @@ struct function const study_function_secondderivatives[] = {
     },
 };
 
+struct function const bonus_functions[] = {
+    {
+        "(x-4)**2*sin(x)",
+        (long double(*)(long double, void const*))f_bonus,
+        NULL
+    },
+    {
+        "(x-4)**3*sin(x)",
+        (long double(*)(long double, void const*))g_bonus,
+        NULL
+    }
+};
+
+struct function const bonus_function_derivatives[] = {
+    {
+        "(x-4)**2*sin(x)'",
+        (long double(*)(long double, void const*))f_bonus_derivative,
+        NULL
+    },
+    {
+        "(x-4)**3*sin(x)",
+        (long double(*)(long double, void const*))g_bonus_derivative,
+        NULL
+    },
+};
+
 struct function const interpolation_function = {
     "1/(1+x**2)",
     (long double(*)(long double, void const*))h,
@@ -140,12 +187,10 @@ int main(int argc, char** argv)
 
     struct result const newtons_result_3 = newtons_method(&study_functions[1], &study_function_derivatives[1], 2.0L, 256, TOLERANCE_3);
     printf("Newton's Method (part 3): %s\n", study_functions[1].name);
-    // TODO: convergence rate. Write utility function to report result
     report_result(&newtons_result_3);
 
     struct result const altered_newtons_result_3 = altered_newtons_method(&study_functions[1], &study_function_derivatives[1], &study_function_secondderivatives[1], 2.0L, 256, TOLERANCE_3);
     printf("Altered Newton's Method (part 3): %s\n", study_functions[1].name);
-    // TODO: convergence rate. Write utility function to report result
     report_result(&altered_newtons_result_3);
 
     struct interpolation const* lagrange[] = {
@@ -170,7 +215,7 @@ int main(int argc, char** argv)
             lagrange[2]
         }
     };
-    gnuplot("lagrange", 4, -5.0L, 5.0L, 2048, &interpolation_function, &lagrange_functions[0], &lagrange_functions[1], &lagrange_functions[2]);
+    gnuplot("lagrange", 4, -5.0L, 5.0L, EXPORT_POINTS, &interpolation_function, &lagrange_functions[0], &lagrange_functions[1], &lagrange_functions[2]);
 
     printf("Lagrange interpolation coefficients for %s\n", interpolation_function.name);
     for(int i = 0; i != 3; i++) {
@@ -203,7 +248,7 @@ int main(int argc, char** argv)
             piecewise_linear[2]
         }
     };
-    gnuplot("piecewise_linear", 4, -5.0L, 5.0L, 2048, &interpolation_function, &piecewise_linear_functions[0], &piecewise_linear_functions[1], &piecewise_linear_functions[2]);
+    gnuplot("piecewise_linear", 4, -5.0L, 5.0L, EXPORT_POINTS, &interpolation_function, &piecewise_linear_functions[0], &piecewise_linear_functions[1], &piecewise_linear_functions[2]);
 
     printf("Piecewise linear interpolation coefficients for %s\n", interpolation_function.name);
     for(int i = 0; i != 3; i++) {
@@ -233,7 +278,7 @@ int main(int argc, char** argv)
             raised_cosine[2]
         }
     };
-    gnuplot("raised_cosine", 4, -5.0L, 5.0L, 2048, &interpolation_function, &raised_cosine_functions[0], &raised_cosine_functions[1], &raised_cosine_functions[2]);
+    gnuplot("raised_cosine", 4, -5.0L, 5.0L, EXPORT_POINTS, &interpolation_function, &raised_cosine_functions[0], &raised_cosine_functions[1], &raised_cosine_functions[2]);
 
     printf("Raised cosine interpolation coefficients for %s\n", interpolation_function.name);
     for(int i = 0; i != 3; i++) {
@@ -264,7 +309,7 @@ int main(int argc, char** argv)
             least_squares[2]
         }
     };
-    gnuplot("least_squares", 4, -5.0L, 5.0L, 2048, &interpolation_function, &least_squares_functions[0], &least_squares_functions[1], &least_squares_functions[2]);
+    gnuplot("least_squares", 4, -5.0L, 5.0L, EXPORT_POINTS, &interpolation_function, &least_squares_functions[0], &least_squares_functions[1], &least_squares_functions[2]);
     printf("Least squares interpolation coefficients for %s\n", interpolation_function.name);
     for(int i = 0; i != 3; i++) {
         for(ssize_t j = least_squares[i]->order; j >= 0; j--) {
@@ -290,7 +335,21 @@ int main(int argc, char** argv)
     }
 
     /* Bonus Problem 2 */
+    struct result const bonus_newtons_result[] = {
+        newtons_method(&bonus_functions[0], &bonus_function_derivatives[0], 5.0L, 256, TOLERANCE),
+        newtons_method(&bonus_functions[1], &bonus_function_derivatives[1], 5.0L, 256, TOLERANCE)
+    };
+    struct result const adjusting_bonus_newtons_result[] = {
+        adjusting_newtons_method(&bonus_functions[0], &bonus_function_derivatives[0], 5.0L, 256, TOLERANCE),
+        adjusting_newtons_method(&bonus_functions[1], &bonus_function_derivatives[1], 5.0L, 256, TOLERANCE)
+    };
 
+    printf("Bonus Problem 2: Adjusting Newton's Method\n");
+    for(int i = 0; i != 2; i++) {
+	printf("function %s:\n", bonus_functions[i].name);
+	report_result(&bonus_newtons_result[i]);
+        report_result(&adjusting_bonus_newtons_result[i]);
+    }
 
     return EXIT_SUCCESS;
 }

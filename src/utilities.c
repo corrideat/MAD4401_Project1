@@ -120,7 +120,7 @@ void report_result(struct result const * const result)
     if(result->error != 0.0L && isfinite(result->error)) {
         precision = 1L + -1L * (size_t)(ceill(log10l(fabsl(result->error))));
     }
-    printf("result: %.*Lf ± %.1LE, iterations: %ld\n", (int)precision, result->value, result->error, result->iterations);
+    printf("result: %.*Lf ± %.1LE, iterations: %ld, convergence rate: %u\n", (int)precision, result->value, result->error, result->iterations, result->convergence_rate);
 }
 
 void gnuplot(char const * const base, size_t const n_functions, long double const start, long double const end, unsigned long points, ...)
@@ -141,7 +141,7 @@ void gnuplot(char const * const base, size_t const n_functions, long double cons
         t_f = va_arg(ap, struct function const *);
         function_names[i] = t_f->name;
         for(long double x = start; x < end; x += sampling_interval) {
-            fprintf(fp, "%Lf,%Lf\n", x, t_f->f(x, t_f->arg));
+            fprintf(fp, "%.32LE,%.32LE\n", x, t_f->f(x, t_f->arg));
         }
         fclose(fp);
     }
