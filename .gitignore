@@ -24,4 +24,4 @@ CMakeCache.txt
 **/build/
 **/Testing/
 format.sh
-
+**/report/

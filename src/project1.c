@@ -286,17 +286,17 @@ struct interpolation const* least_squares_interpolation(struct function const *c
         printf("error\n");
         goto error1;
     }
-    struct matrix const sample_vector_transpose = {
+    struct matrix const f_T = {
         .elements = (long double*)sampled_function->samples,
         .cols = 1L,
         .rows = sampled_function->n_samples
     };
-    struct matrix * const matrix_transpose = create_matrix(sampled_function->n_samples, order + 1L);
-    if(matrix_transpose == NULL) {
+    struct matrix * const V_T = create_matrix(sampled_function->n_samples, order + 1L);
+    if(V_T == NULL) {
         printf("error\n");
         goto error2;
     }
-    matrix_set_row(matrix_transpose, 1L, 1.0L);
+    V_set_row(V_T, 1L, 1.0L);
     long double * const xs = malloc(sizeof(long double)*sampled_function->n_samples);
     if(xs == NULL) {
         printf("error\n");
@@ -306,30 +306,30 @@ struct interpolation const* least_squares_interpolation(struct function const *c
         xs[i] = sampled_function->start + ((long double)i) * sampled_function->sampling_interval;
     }
     for(size_t i = 2; i <= (order + 1); i++) {
-        matrix_set_row_vector_power(matrix_transpose, i, xs, (long double)i - 1.0L);
+        V_set_row_vector_power(V_T, i, xs, (long double)i - 1.0L);
     }
-    struct matrix * const matrix = transpose_matrix(matrix_transpose);
-    if(matrix == NULL) {
+    struct matrix * const V = transpose_matrix(V_T);
+    if(V == NULL) {
         printf("error\n");
         goto error4;
     }
-    struct matrix * const matrix_transpose_by_matrix_product = matrix_multiply(matrix_transpose, matrix);
-    if(matrix_transpose_by_matrix_product == NULL) {
+    struct matrix * const V_T_by_V_PR = V_multiply(V_T, V);
+    if(V_T_by_V_PR == NULL) {
         printf("error\n");
         goto error5;
     }
-    struct matrix * const matrix_transpose_by_matrix_product_inverse = matrix_inverse(matrix_transpose_by_matrix_product);
-    if(matrix_transpose_by_matrix_product_inverse == NULL) {
+    struct matrix * const V_T_by_V_PR_INV = V_INV(V_T_by_V_PR);
+    if(V_T_by_V_PR_INV == NULL) {
         printf("error\n");
         goto error6;
     }
-    struct matrix * const matrix_transpose_by_matrix_product_inverse_by_matrix_transpose = matrix_multiply(matrix_transpose_by_matrix_product_inverse, matrix_transpose);
-    if(matrix_transpose_by_matrix_product_inverse_by_matrix_transpose == NULL) {
+    struct matrix * const V_T_by_V_PR_INV_by_V_T = V_multiply(V_T_by_V_PR_INV, V_T);
+    if(V_T_by_V_PR_INV_by_V_T == NULL) {
         printf("error\n");
         goto error7;
     }
-    struct matrix *const matrix_transpose_by_matrix_product_inverse_by_matrix_transpose_by_sample_vector_transpose = matrix_multiply(matrix_transpose_by_matrix_product_inverse_by_matrix_transpose, &sample_vector_transpose);
-    if(matrix_transpose_by_matrix_product_inverse_by_matrix_transpose_by_sample_vector_transpose == NULL || matrix_transpose_by_matrix_product_inverse_by_matrix_transpose_by_sample_vector_transpose->cols != 1L) {
+    struct matrix *const V_T_by_V_PR_INV_by_V_T_by_f_T = V_multiply(V_T_by_V_PR_INV_by_V_T, &f_T);
+    if(V_T_by_V_PR_INV_by_V_T_by_f_T == NULL || V_T_by_V_PR_INV_by_V_T_by_f_T->cols != 1L) {
         printf("error\n");
         goto error8;
     }
@@ -344,24 +344,24 @@ struct interpolation const* least_squares_interpolation(struct function const *c
             snprintf(least_squares->name, len, "Least Squares Interpolation of %s (order %ld)", sampled_function->name, order);
         }
     }
-    for(size_t i = 0L; i != matrix_transpose_by_matrix_product_inverse_by_matrix_transpose_by_sample_vector_transpose->rows; i++) {
-        least_squares->coefficients[i] = matrix_transpose_by_matrix_product_inverse_by_matrix_transpose_by_sample_vector_transpose->elements[i];
+    for(size_t i = 0L; i != V_T_by_V_PR_INV_by_V_T_by_f_T->rows; i++) {
+        least_squares->coefficients[i] = V_T_by_V_PR_INV_by_V_T_by_f_T->elements[i];
     }
 
 error9:
-    destroy_matrix(matrix_transpose_by_matrix_product_inverse_by_matrix_transpose_by_sample_vector_transpose);
+    destroy_matrix(V_T_by_V_PR_INV_by_V_T_by_f_T);
 error8:
-    destroy_matrix(matrix_transpose_by_matrix_product_inverse_by_matrix_transpose);
+    destroy_matrix(V_T_by_V_PR_INV_by_V_T);
 error7:
-    destroy_matrix(matrix_transpose_by_matrix_product_inverse);
+    destroy_matrix(V_T_by_V_PR_INV);
 error6:
-    destroy_matrix(matrix_transpose_by_matrix_product);
+    destroy_matrix(V_T_by_V_PR);
 error5:
-    destroy_matrix(matrix);
+    destroy_matrix(V);
 error4:
     free(xs);
 error3:
-    destroy_matrix(matrix_transpose);
+    destroy_matrix(V_T);
 error2:
     destroy_sample(sampled_function);
 error1:

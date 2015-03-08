@@ -161,6 +161,8 @@ int main(int argc, char** argv)
 {
     setlocale(LC_ALL, "");
 
+    gnuplot("1_visual_inspection", 1, 0.0L, 10.0L, EXPORT_POINTS, &&study_functions[0]);
+
     struct result const bisection_result[] = {
         bisection_method(&study_functions[0], 0.5L, 1.5L, TOLERANCE),
         bisection_method(&study_functions[0], 2.0L, 3.0L, TOLERANCE),
