@@ -28,6 +28,7 @@
 #include "project1.h"
 
 #define LEAST_SQUARES_POINTS 524288.0L
+#define SQUARE_ROOT_TOLERANCE 1E-7L
 
 struct result bisection_method(struct function const* function, long double x0, long double x1, long double tolerance) {
     struct result result;
@@ -99,10 +100,10 @@ struct result altered_newtons_method(struct function const* const function, stru
     struct result result;
     double long temp_f, temp_fd, temp_fdd;
     for(result.iterations = 0L; result.iterations != max_iterations; result.iterations++) {
-	temp_f = function->f(x0, function->arg);
-	temp_fd = derivative->f(x0, function->arg);
-	temp_fdd = secondderivative->f(x0, function->arg);
-        result.value = x0 - (temp_f*temp_fd)/(temp_fd*temp_fd - temp_f*temp_fdd);
+        temp_f = function->f(x0, function->arg);
+        temp_fd = derivative->f(x0, function->arg);
+        temp_fdd = secondderivative->f(x0, function->arg);
+        result.value = x0 - (temp_f * temp_fd) / (temp_fd * temp_fd - temp_f * temp_fdd);
         if((result.error = fabsl((result.value - x0) / result.value)) < tolerance) {
             break;
         }
@@ -354,4 +355,53 @@ error2:
     destroy_sample(sampled_function);
 error1:
     return least_squares;
+}
+
+static long double square_root_helper(double long const x, double long *k)
+{
+    return x * x - *k;
+}
+
+static long double square_root_helper_derivative(double long const x, double long *k)
+{
+    return 2 * x;
+}
+
+struct result square_root_calculator(double long const k) {
+    struct result result = {
+        NAN,
+        0,
+        0
+    };
+    if(k < 0) {
+        return result;
+    } else if(k == 0.0L) {
+        result.value = 0.0L;
+        return result;
+    } else if(k == 1.0L) {
+        result.value = 1.0L;
+        return result;
+    }
+
+    struct function const f[] = {
+        {
+            NULL,
+            (long double(*)(long double, void const*))square_root_helper,
+            &k
+        },
+        {
+            NULL,
+            (long double(*)(long double, void const*))square_root_helper_derivative,
+            &k
+        }
+    };
+    result = bisection_method(&f[0], 0.0L, k, k / 16);
+    if(result.error != 0.0L) {
+        unsigned long iterations = result.iterations;
+        struct result newtons_result = newtons_method(&f[0], &f[1], result.value, 256, SQUARE_ROOT_TOLERANCE);
+        newtons_result.iterations += iterations;
+        return newtons_result;
+    } else {
+        return result;
+    }
 }

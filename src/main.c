@@ -93,9 +93,9 @@ struct function const study_function_derivatives[] = {
 
 struct function const study_function_secondderivatives[] = {
     {
-      NULL,
-      NULL,
-      NULL
+        NULL,
+        NULL,
+        NULL
     },
     {
         "(e**(-x/5)/sin(x))''",
@@ -273,6 +273,23 @@ int main(int argc, char** argv)
         printf(" order: %ld, error: %.2LE\n", least_squares[i]->order, polynomial_error(least_squares[i]));
         destroy_interpolation((struct interpolation*)least_squares[i]);
     }
+
+    /* Bonus Problem 1 */
+
+    char square_root_errors = 0;
+    for(long double i = 10.0L; i <= 10000.0L; i += 1.0L / 8192.0L) {
+        struct result squareroot = square_root_calculator(i);
+        double long real_sqrt = sqrtl(i);
+        if(labs(squareroot.value - real_sqrt) > squareroot.error) {
+            square_root_errors++;
+            printf("Error for square root of %.0Lf (%Lf ± %LE not %Lf) \n", i, squareroot.value, squareroot.error, real_sqrt);
+        }
+    }
+    if(square_root_errors == 0) {
+        printf("Success for square root\n");
+    }
+
+    /* Bonus Problem 2 */
 
 
     return EXIT_SUCCESS;

@@ -29,3 +29,4 @@ struct interpolation const* lagrange_interpolation(struct function const* functi
 struct interpolation const* piecewise_linear_interpolation(struct function const* function, long double x0, long double x1, unsigned long order);
 struct interpolation const* raised_cosine_interpolation(struct function const* function, long double x0, long double x1, unsigned long order);
 struct interpolation const* least_squares_interpolation(struct function const* function, long double x0, long double x1, unsigned long order);
+struct result square_root_calculator(double long const k);
