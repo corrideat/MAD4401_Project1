@@ -346,8 +346,8 @@ int main(int argc, char** argv)
 
     printf("Bonus Problem 2: Adjusting Newton's Method\n");
     for(int i = 0; i != 2; i++) {
-	printf("function %s:\n", bonus_functions[i].name);
-	report_result(&bonus_newtons_result[i]);
+        printf("function %s:\n", bonus_functions[i].name);
+        report_result(&bonus_newtons_result[i]);
         report_result(&adjusting_bonus_newtons_result[i]);
     }
 

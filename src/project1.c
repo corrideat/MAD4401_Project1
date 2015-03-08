@@ -92,13 +92,13 @@ struct result newtons_method(struct function const* function, struct function co
         if((result.error = fabsl((result.value - x0) / result.value)) < tolerance) {
             break;
         }
-	errors[0] = errors[1];
-	errors[1] = errors[2];
-	errors[2] = result.error;
+        errors[0] = errors[1];
+        errors[1] = errors[2];
+        errors[2] = result.error;
         x0 = result.value;
     }
     result.error /= 2.0L;
-    result.convergence_rate = (result.iterations < 3)?NAN:roundl(logl(errors[2]/errors[1])/logl(errors[1]/errors[0]));
+    result.convergence_rate = (result.iterations < 3) ? NAN : roundl(logl(errors[2] / errors[1]) / logl(errors[1] / errors[0]));
     return result;
 }
 
@@ -114,13 +114,13 @@ struct result altered_newtons_method(struct function const* const function, stru
         if((result.error = fabsl((result.value - x0) / result.value)) < tolerance) {
             break;
         }
-	errors[0] = errors[1];
-	errors[1] = errors[2];
-	errors[2] = result.error;
+        errors[0] = errors[1];
+        errors[1] = errors[2];
+        errors[2] = result.error;
         x0 = result.value;
     }
     result.error /= 2.0L;
-    result.convergence_rate = (result.iterations < 3)?NAN:roundl(logl(errors[2]/errors[1])/logl(errors[1]/errors[0]));
+    result.convergence_rate = (result.iterations < 3) ? NAN : roundl(logl(errors[2] / errors[1]) / logl(errors[1] / errors[0]));
     return result;
 }
 
@@ -427,19 +427,19 @@ struct result adjusting_newtons_method(struct function const* function, struct f
         if((result.error = fabsl((result.value - x0) / result.value)) < tolerance) {
             break;
         }
-	errors[0] = errors[1];
-	errors[1] = errors[2];
-	errors[2] = result.error;
-	if (adjusting && result.iterations > 2 && (result.iterations % 3 == 0)) {
-	  if (roundl(logl(errors[2]/errors[1])/logl(errors[1]/errors[0])) < 2.0L) {
-	    m++;
-	  } else {
-	    adjusting = 0;
-	  }
-	}
+        errors[0] = errors[1];
+        errors[1] = errors[2];
+        errors[2] = result.error;
+        if(adjusting && result.iterations > 2 && (result.iterations % 3 == 0)) {
+            if(roundl(logl(errors[2] / errors[1]) / logl(errors[1] / errors[0])) < 2.0L) {
+                m++;
+            } else {
+                adjusting = 0;
+            }
+        }
         x0 = result.value;
     }
     result.error /= 2.0L;
-    result.convergence_rate = (result.iterations < 3)?NAN:roundl(logl(errors[2]/errors[1])/logl(errors[1]/errors[0]));
+    result.convergence_rate = (result.iterations < 3) ? NAN : roundl(logl(errors[2] / errors[1]) / logl(errors[1] / errors[0]));
     return result;
 }
